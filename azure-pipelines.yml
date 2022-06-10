@@ -79,6 +79,8 @@ stages:
       resourceType: VirtualMachine
     variables:
     - group: Release
+    - name: WebAppName
+      value: 'testwebapp'
     - name: websitePhysicalPath
       value: '%SystemDrive%\inetpub\wwwroot\$(websiteName)'
 
