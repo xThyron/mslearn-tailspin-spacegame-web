@@ -79,8 +79,6 @@ stages:
       resourceType: VirtualMachine
     variables:
     - group: Release
-    - name: WebAppName
-      value: 'testwebapp'
     - name: websitePhysicalPath
       value: '%SystemDrive%\inetpub\wwwroot\$(websiteName)'
 
@@ -108,7 +106,7 @@ stages:
                               "protocol":"http",
                               "ipAddress":"",
                               "hostname":"",
-                              "port":"80",
+                              "port":"8080",
                               "sslThumbprint":"",
                               "sniFlag":false
                           }
