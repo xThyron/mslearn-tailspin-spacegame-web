@@ -70,7 +70,7 @@ stages:
   displayName: 'Deploy the web application'
   dependsOn: Build
   jobs:
-  - deployment: Deploy
+  - deployment: Deployment
     pool:
       vmImage: 'ubuntu-20.04'
       name: 'local'
