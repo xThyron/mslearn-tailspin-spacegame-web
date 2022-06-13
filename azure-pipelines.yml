@@ -5,6 +5,15 @@ variables:
   buildConfiguration: 'Release'
   releaseBranchName: 'release'
 
+# Define a schedule that can be used in a job via condition  
+schedules:
+- cron: '0 3 * * *'
+  displayName: 'Deploy every day at 3 A.M.'
+  branches:
+    include:
+    - release
+  always: false 
+
 stages:
 - stage: 'Build'
   displayName: 'Build the web application'
@@ -122,4 +131,56 @@ stages:
           - task: IISWebAppDeploymentOnMachineGroup@0
             inputs:
               WebSiteName: '$(WebAppNameDev)'
+              Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Test'
+  displayName: 'Deploy to the test environment'
+  dependsOn: Dev
+  #condition: eq(variables['Build.Reason'], 'Schedule')
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-20.04'
+      name: 'local'
+    environment: 
+      name: 'test'
+      resourceType: VirtualMachine
+    variables:
+    - group: Release
+    - name: websitePhysicalPath
+      value: '%SystemDrive%\inetpub\wwwroot\$(WebAppNameTest)'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps: 
+          - task: IISWebAppManagementOnMachineGroup@0
+            inputs:            
+              IISDeploymentType: 'IISWebsite'
+              ActionIISWebsite: 'CreateOrUpdateWebsite'
+              WebsiteName: '$(WebAppNameTest)'
+              WebsitePhysicalPath: '$(websitePhysicalPath)'
+              WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
+              CreateOrUpdateAppPoolForWebsite: true
+              AppPoolNameForWebsite: '$(WebAppNameTest)'
+              DotNetVersionForWebsite: 'No Managed Code'
+              PipeLineModeForWebsite: 'Integrated'
+              AppPoolIdentityForWebsite: 'ApplicationPoolIdentity'
+              AddBinding: true
+              Bindings: |
+                  {
+                      bindings:[
+                          {
+                              "protocol":"http",
+                              "ipAddress":"",
+                              "hostname":"",
+                              "port":"8081",
+                              "sslThumbprint":"",
+                              "sniFlag":false
+                          }
+                      ]
+                  }
+          - task: IISWebAppDeploymentOnMachineGroup@0
+            inputs:
+              WebSiteName: '$(WebAppNameTest)'
               Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
