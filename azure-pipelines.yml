@@ -3,7 +3,7 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
-  releaseBranchName: 'selenium'
+  releaseBranchName: 'release'
 
 # Define a schedule that can be used in a job via condition  
 schedules:
@@ -68,7 +68,7 @@ stages:
       displayName: 'Publish the project - $(buildConfiguration)'
       inputs:
         command: 'publish'
-        projects: '**/*.csproj'
+        projects: '$(System.DefaultWorkingDirectory)/**/Tailspin.SpaceGame.Web.csproj' 
         publishWebProjects: false
         arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
         zipAfterPublish: true
@@ -79,12 +79,6 @@ stages:
 - stage: 'Dev'
   displayName: 'Deploy to the dev environment'
   dependsOn: Build
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
-    )
   jobs:
   - deployment: Deployment
     pool:
@@ -185,54 +179,29 @@ stages:
               WebSiteName: '$(WebAppNameTest)'
               Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Staging'
-  displayName: 'Deploy to the staging environment'
-  dependsOn: Test
-  #condition: eq(variables['Build.Reason'], 'Schedule')
-  jobs:
-  - deployment: Deployment
+  - job: RunUITests
+    dependsOn: Deploy
+    displayName: 'Run UI tests'
     pool:
-      vmImage: 'ubuntu-20.04'
+      vmImage: 'windows-2019'
       name: 'local'
-    environment: 
-      name: 'staging'
-      resourceType: VirtualMachine
     variables:
-    - group: Release
-    - name: websitePhysicalPath
-      value: '%SystemDrive%\inetpub\wwwroot\$(WebAppNameStaging)'
-
-    strategy:
-      runOnce:
-        deploy:
-          steps: 
-          - task: IISWebAppManagementOnMachineGroup@0
-            inputs:            
-              IISDeploymentType: 'IISWebsite'
-              ActionIISWebsite: 'CreateOrUpdateWebsite'
-              WebsiteName: '$(WebAppNameStaging)'
-              WebsitePhysicalPath: '$(websitePhysicalPath)'
-              WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
-              CreateOrUpdateAppPoolForWebsite: true
-              AppPoolNameForWebsite: '$(WebAppNameStaging)'
-              DotNetVersionForWebsite: 'No Managed Code'
-              PipeLineModeForWebsite: 'Integrated'
-              AppPoolIdentityForWebsite: 'ApplicationPoolIdentity'
-              AddBinding: true
-              Bindings: |
-                  {
-                      bindings:[
-                          {
-                              "protocol":"http",
-                              "ipAddress":"",
-                              "hostname":"",
-                              "port":"8082",
-                              "sslThumbprint":"",
-                              "sniFlag":false
-                          }
-                      ]
-                  }
-          - task: IISWebAppDeploymentOnMachineGroup@0
-            inputs:
-              WebSiteName: '$(WebAppNameStaging)'
-              Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'      
+    - group: 'Release'
+    steps: 
+    - task: UseDotNet@2
+      displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+      inputs:
+        version: '$(dotnetSdkVersion)'
+    - task: DotNetCoreCLI@2
+      displayName: 'Build the project - $(buildConfiguration)'
+      inputs:
+        command: 'build'
+        arguments: '--configuration $(buildConfiguration)'
+        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    - task: DotNetCoreCLI@2
+      displayName: 'Run unit tests - $(buildConfiguration)'
+      inputs:
+        command: 'test'
+        arguments: '--no-build --configuration $(buildConfiguration)'
+        publishTestResults: true
+        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'

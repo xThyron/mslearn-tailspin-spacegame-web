@@ -9,8 +9,8 @@ using System.Collections;
 
 namespace UITests
 {
-    //[TestFixture("Chrome")]
-    //[TestFixture("Firefox")]
+    [TestFixture("Chrome")]
+    [TestFixture("Firefox")]
     [TestFixture("Edge")]
     public class HomePageTest
     {
@@ -26,13 +26,12 @@ namespace UITests
         [OneTimeSetUp]
         public void Setup()
         {
-            System.Environment.SetEnvironmentVariable("ChromeWebDriver", @"C:\Users\joaxer\mslearn-tailspin-spacegame-web\Tailspin.SpaceGame.Web.UITests\bin\Release\net5.0");
+            /*System.Environment.SetEnvironmentVariable("ChromeWebDriver", @"C:\Users\joaxer\mslearn-tailspin-spacegame-web\Tailspin.SpaceGame.Web.UITests\bin\Release\net5.0");
             System.Environment.SetEnvironmentVariable("GeckoWebDriver", @"C:\Users\joaxer\mslearn-tailspin-spacegame-web\Tailspin.SpaceGame.Web.UITests\bin\Release\net5.0");
             System.Environment.SetEnvironmentVariable("EdgeWebDriver", @"C:\Users\joaxer\mslearn-tailspin-spacegame-web\Tailspin.SpaceGame.Web.UITests\bin\Release\net5.0");
-            System.Environment.SetEnvironmentVariable("SITE_URL", @"http://localhost:8081");
+            System.Environment.SetEnvironmentVariable("SITE_URL", @"http://localhost:8080");*/
             try
             {
-                Console.WriteLine("begin");
                 // Create the driver for the current browser.
                 switch(browser)
                 {
@@ -99,7 +98,6 @@ namespace UITests
             // This happens when the underlying browser is not installed.
             if (driver == null)
             {
-                Console.WriteLine("!!!--$$$-begin");
                 Assert.Ignore();
                 return;
             }
