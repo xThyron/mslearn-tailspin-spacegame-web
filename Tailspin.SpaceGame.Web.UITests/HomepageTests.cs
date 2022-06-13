@@ -42,7 +42,7 @@ namespace UITests
                     //);
                     break;
                   case "Firefox":
-                    driver = new FirefoxDriver()
+                    driver = new FirefoxDriver();
                     //    Environment.GetEnvironmentVariable("GeckoWebDriver")
                     //);
                     break;
