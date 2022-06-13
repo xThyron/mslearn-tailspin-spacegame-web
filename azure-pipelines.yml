@@ -131,7 +131,7 @@ stages:
           - task: IISWebAppDeploymentOnMachineGroup@0
             inputs:
               WebSiteName: '$(WebAppNameDev)'
-              Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/Tailspin.SpaceGame.Web.zip'
 
 - stage: 'Test'
   displayName: 'Deploy to the test environment'
