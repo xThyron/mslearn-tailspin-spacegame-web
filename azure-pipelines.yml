@@ -3,6 +3,7 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
+  releaseBranchName: 'release'
 
 stages:
 - stage: 'Build'
@@ -66,9 +67,15 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
 
-- stage: 'Deploy'
-  displayName: 'Deploy the web application'
+- stage: 'Dev'
+  displayName: 'Deploy to the dev environment'
   dependsOn: Build
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
+    )
   jobs:
   - deployment: Deployment
     pool:
@@ -80,7 +87,7 @@ stages:
     variables:
     - group: Release
     - name: websitePhysicalPath
-      value: '%SystemDrive%\inetpub\wwwroot\$(WebAppName)'
+      value: '%SystemDrive%\inetpub\wwwroot\$(WebAppNameDev)'
 
     strategy:
       runOnce:
@@ -90,11 +97,11 @@ stages:
             inputs:            
               IISDeploymentType: 'IISWebsite'
               ActionIISWebsite: 'CreateOrUpdateWebsite'
-              WebsiteName: '$(WebAppName)'
+              WebsiteName: '$(WebAppNameDev)'
               WebsitePhysicalPath: '$(websitePhysicalPath)'
               WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
               CreateOrUpdateAppPoolForWebsite: true
-              AppPoolNameForWebsite: '$(WebAppName)'
+              AppPoolNameForWebsite: '$(WebAppNameDev)'
               DotNetVersionForWebsite: 'No Managed Code'
               PipeLineModeForWebsite: 'Integrated'
               AppPoolIdentityForWebsite: 'ApplicationPoolIdentity'
@@ -114,5 +121,5 @@ stages:
                   }
           - task: IISWebAppDeploymentOnMachineGroup@0
             inputs:
-              WebSiteName: '$(WebAppName)'
+              WebSiteName: '$(WebAppNameDev)'
               Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
