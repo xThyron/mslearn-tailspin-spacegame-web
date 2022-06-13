@@ -184,3 +184,55 @@ stages:
             inputs:
               WebSiteName: '$(WebAppNameTest)'
               Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Staging'
+  displayName: 'Deploy to the staging environment'
+  dependsOn: Test
+  #condition: eq(variables['Build.Reason'], 'Schedule')
+  jobs:
+  - deployment: Deployment
+    pool:
+      vmImage: 'ubuntu-20.04'
+      name: 'local'
+    environment: 
+      name: 'staging'
+      resourceType: VirtualMachine
+    variables:
+    - group: Release
+    - name: websitePhysicalPath
+      value: '%SystemDrive%\inetpub\wwwroot\$(WebAppNameStaging)'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps: 
+          - task: IISWebAppManagementOnMachineGroup@0
+            inputs:            
+              IISDeploymentType: 'IISWebsite'
+              ActionIISWebsite: 'CreateOrUpdateWebsite'
+              WebsiteName: '$(WebAppNameStaging)'
+              WebsitePhysicalPath: '$(websitePhysicalPath)'
+              WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
+              CreateOrUpdateAppPoolForWebsite: true
+              AppPoolNameForWebsite: '$(WebAppNameStaging)'
+              DotNetVersionForWebsite: 'No Managed Code'
+              PipeLineModeForWebsite: 'Integrated'
+              AppPoolIdentityForWebsite: 'ApplicationPoolIdentity'
+              AddBinding: true
+              Bindings: |
+                  {
+                      bindings:[
+                          {
+                              "protocol":"http",
+                              "ipAddress":"",
+                              "hostname":"",
+                              "port":"8082",
+                              "sslThumbprint":"",
+                              "sniFlag":false
+                          }
+                      ]
+                  }
+          - task: IISWebAppDeploymentOnMachineGroup@0
+            inputs:
+              WebSiteName: '$(WebAppNameStaging)'
+              Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'      
