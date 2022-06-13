@@ -36,23 +36,24 @@ namespace UITests
                 switch(browser)
                 {
                   case "Chrome":
-                    driver = new ChromeDriver(
-                        Environment.GetEnvironmentVariable("ChromeWebDriver")
-                    );
+                    driver = new ChromeDriver();
+                    //driver = new ChromeDriver(
+                    //    Environment.GetEnvironmentVariable("ChromeWebDriver")
+                    //);
                     break;
                   case "Firefox":
-                    driver = new FirefoxDriver(
-                        Environment.GetEnvironmentVariable("GeckoWebDriver")
-                    );
+                    driver = new FirefoxDriver()
+                    //    Environment.GetEnvironmentVariable("GeckoWebDriver")
+                    //);
                     break;
                   case "Edge":
-                    driver = new EdgeDriver(
-                        Environment.GetEnvironmentVariable("EdgeWebDriver"),
-                        new EdgeOptions
-                        {
-                            UseChromium = true
-                        }
-                    );
+                    driver = new EdgeDriver();
+                        //Environment.GetEnvironmentVariable("EdgeWebDriver"),
+                        //new EdgeOptions
+                        //{
+                        //    UseChromium = true
+                        //}
+                    //);
                     break;
                   default:
                     throw new ArgumentException($"'{browser}': Unknown browser");
