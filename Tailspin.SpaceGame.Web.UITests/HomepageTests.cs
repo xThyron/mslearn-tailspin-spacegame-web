@@ -47,10 +47,9 @@ namespace UITests
                     //);
                     break;
                   case "Edge":
-                    edge_opt = new EdgeOptions {
+                    driver = new EdgeDriver(new EdgeOptions {
                         UseChromium = true
-                    };
-                    driver = new EdgeDriver(edge_opt);
+                    });
                         //Environment.GetEnvironmentVariable("EdgeWebDriver"),
                         //new EdgeOptions
                         //{
