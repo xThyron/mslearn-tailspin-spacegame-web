@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace UITests
 {
-    [TestFixture("Chrome")]
+    //[TestFixture("Chrome")]
     [TestFixture("Firefox")]
     [TestFixture("Edge")]
     public class HomePageTest
@@ -47,7 +47,10 @@ namespace UITests
                     //);
                     break;
                   case "Edge":
-                    driver = new EdgeDriver();
+                    edge_opt = new EdgeOptions {
+                        UseChromium = true
+                    };
+                    driver = new EdgeDriver(edge_opt);
                         //Environment.GetEnvironmentVariable("EdgeWebDriver"),
                         //new EdgeOptions
                         //{
@@ -60,7 +63,7 @@ namespace UITests
                 }
 
                 // Wait until the page is fully loaded on every page navigation or page reload.
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
 
                 // Navigate to the site.
                 // The site name is stored in the SITE_URL environment variable to make 
@@ -69,7 +72,7 @@ namespace UITests
                 driver.Navigate().GoToUrl(url + "/");
 
                 // Wait for the page to be completely loaded.
-                new WebDriverWait(driver, TimeSpan.FromSeconds(10))
+                new WebDriverWait(driver, TimeSpan.FromSeconds(20))
                     .Until(d => ((IJavaScriptExecutor) d)
                         .ExecuteScript("return document.readyState")
                         .Equals("complete"));
