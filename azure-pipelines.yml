@@ -226,6 +226,8 @@ stages:
     pool:
       vmImage: 'ubuntu-20.04'
       name: local
+      demands:
+      - agent.name -equals wsl
     variables:
     - group: Release
     steps:
