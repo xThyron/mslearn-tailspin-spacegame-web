@@ -221,7 +221,7 @@ stages:
               WebSiteName: '$(WebAppNameStaging)'
               Package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'      
   - job: RunLoadTests
-    dependsOn: Deploy
+    dependsOn: Deployment
     displayName: 'Run load tests'
     pool:
       vmImage: 'ubuntu-20.04'
