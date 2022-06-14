@@ -56,7 +56,7 @@ namespace TailSpin.SpaceGame.Web
                 .Skip(page * pageSize) // find page
                 .Take(pageSize); // take items
 
-            return Task<IEnumerable<T>>.FromResult(result);
+           return Task<IEnumerable<T>>.FromResult(result);
         }
 
         /// <summary>
