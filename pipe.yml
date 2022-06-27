@@ -1,0 +1,46 @@
+trigger:
+- '*'
+ 
+stages:
+- stage: 'Build'
+  displayName: 'Build the Online Assessment application'
+  jobs:
+  - job: 'Build'
+    displayName: 'Build job'
+    pool:
+      vmImage: 'ubuntu-20.04'
+      demands:
+      - npm
+
+    variables:
+      psychCockpitDir: 'modules/psychware/OnlineAssessment.Psychware.Cockpit'
+
+    steps:
+    - task: Npm@1  
+      displayName: 'Install Angular CLI 14.0.3'  
+      inputs:  
+        command: custom  
+        customCommand: 'install -g @angular/cli@14.0.3'
+        verbose: false
+
+    - task: Npm@1  
+      displayName: 'npm install dependencies of package.json'  
+      inputs:  
+        command: install
+        verbose: false  
+      workingDirectory: '$(Build.SourcesDirectory)/$(psychCockpitDir)'
+          
+    - task: Npm@1  
+      displayName: 'Build'
+      inputs: 
+        command: custom  
+        customCommand: 'run build'  
+      workingDirectory: '$(Build.SourcesDirectory)/$(psychCockpitDir)'
+
+    - task: CopyPublishBuildArtifacts@1  
+          displayName: 'Copy Publish Artifact'  
+          inputs:  
+            CopyRoot: '$(Build.SourcesDirectory)/$(psychCockpitDir)/dist'
+            Contents: '**'  
+            ArtifactName: angular-web-app 
+            ArtifactType: Container
