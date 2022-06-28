@@ -62,9 +62,11 @@ stages:
         publishWebProjects: false
         arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
         zipAfterPublish: true
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
 
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
 
 - stage: 'Dev'
   displayName: 'Deploy to the dev environment'
@@ -172,7 +174,7 @@ stages:
 - stage: 'Staging'
   displayName: 'Deploy to the staging environment'
   dependsOn: Test
-  #condition: eq(variables['Build.Reason'], 'Schedule')
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   jobs:
   - deployment: Deployment
     pool:
